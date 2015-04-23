@@ -7,26 +7,7 @@
 		<script>
 			j$ = jQuery.noConflict();
 			j$(document).ready( function () {
-				var contactTable = j$('[id$="contacttable"]').DataTable({
-					order: [[2, 'asc']],
-					
-					initComplete: function() {
-						var api = this.api();
-						var select = j$('[id$=accountSelect]');
-						api.column(0).data().unique().sort().each( function ( d, j ) {
-							select.append( '<option value="'+d+'">'+d+'</option>' )
-						} );   
-					}
-				});
- 
-				j$('[id$=accountSelect]').change(function() {
-					var val = j$.fn.dataTable.util.escapeRegex(
-						j$(this).val()
-					);
-					contactTable.column(0)
-						.search( val == 'All' ? '' : '^'+val+'$', true, false )
-						.draw();
-				});                                   
+				renderTable();                                   
 			});
             
             function renderTable() {
@@ -41,17 +22,14 @@
 						} );   
 					}
 				});
- 
-				j$('[id$=accountSelect]').change(function() {
-					var val = j$.fn.dataTable.util.escapeRegex(
-						j$(this).val()
-					);
-					contactTable.column(0)
-						.search( val == 'All' ? '' : '^'+val+'$', true, false )
-						.draw();
-				});                   
+                 
             }    
 		</script>
+        <style>
+        .pbSubheader h3 {
+            color:white;
+         }
+        </style>    
 </head>
 <body>
   <div class="container">
@@ -104,8 +82,10 @@
                 </apex:pageBlockSection>
             </div>    
             <apex:pageMessages />
-            <apex:commandButton id="searchAppForm" value="Search" action="{!searchAppForm}" oncomplete="renderTable();" immediate="false" rerender="applicationSearchBlock, panel1"/>
-            <apex:commandButton id="clearInpFilters" value="Clear" action="{!clearFilters}" immediate="false" rerender="applicationSearchBlock"/>
+            <apex:commandButton id="searchAppForm" value="Search" action="{!searchAppForm}" oncomplete="renderTable();"
+                                										immediate="false" rerender="applicationSearchBlock, panel1"/>
+            <apex:commandButton id="clearInpFilters" value="Clear" action="{!clearFilters}" immediate="false"
+                                										rerender="applicationSearchBlock"/>
             <apex:pageBlockSection id="resultSection" collapsible="false" columns="1" rendered="false">
                 <apex:pageBlockTable id="usersPageBlock" var="af" value="{!appFormWrapList}">
                     <apex:column value="{!af.appFormRec.id}"/>
@@ -120,7 +100,6 @@
         </apex:form>    
       </apex:pageBlock>
     
-		<select id="accountSelect"><option value="All">All</option></select>
  		<apex:outputPanel id="panel1">
             <apex:form>
             <table id="contacttable" class="display">
@@ -151,7 +130,8 @@
                     </apex:repeat>
                 </tbody>
             </table>
-            <apex:commandButton value="Save" action="{!testAction}"/>    
+            <apex:commandButton value="Delete" onclick="confirm('Do you want to delete selected records');" action="{!deleteAppForm}"
+                                										oncomplete="renderTable();" reRender="applicationSearchBlock, panel1" />    
             </apex:form>
         </apex:outputPanel>    
       </div>

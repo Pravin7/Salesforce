@@ -47,9 +47,9 @@ public class ApplicationSearchController {
         List<SelectOption> tempList = new List<SelectOption>();
         tempList.add(new SelectOption('ALL', 'ALL')); 
         tempList.add(new SelectOption('ADT', 'ADT'));
-        tempList.add(new SelectOption('INTERNAL REVIEW', 'INTERNAL REVIEW'));
-        tempList.add(new SelectOption('OIC REVIEW', 'OIC REVIEW'));
-        tempList.add(new SelectOption('S.93 INTERNAL REVIEW', 'S.93 INTERNAL REVIEW'));
+        tempList.add(new SelectOption('Internal Review', 'INTERNAL REVIEW'));
+        tempList.add(new SelectOption('OIC Review', 'OIC REVIEW'));
+        tempList.add(new SelectOption('S.93 Internal Review', 'S.93 INTERNAL REVIEW'));
         return tempList;
     }    
         
@@ -70,11 +70,19 @@ public class ApplicationSearchController {
         return null;
     }
     
-	public PageReference testAction() {
+	public PageReference deleteAppForm() {
+        List<Application__c> appList = new List<Application__c>();
+        List<AppFormWrapper> tempList = new List<AppFormWrapper>();
         for (AppFormWrapper a :appFormWrapList) {
-            if (a.isChecked)
-            	System.debug('Row is checked :' + a);
-        }
+            if (a.isChecked) {
+            	System.debug('Row is checked and will be deleted :' + a);
+                appList.add(a.appFormRec);
+            } else tempList.add(a);
+        }        
+        if (!appList.isEmpty())
+            Database.delete(appList, false);
+		appFormWrapList.clear();
+		appFormWrapList.addAll(tempList);
         return null;
     }    
 
@@ -110,13 +118,16 @@ public class ApplicationSearchController {
 		if (appForm.application_Valid_Date__c != null) {
 		    System.debug('appForm.Application_Valid_Date__c:' +appForm.Application_Valid_Date__c);
             DateTime refDate1 = DateTime.newInstance(appForm.application_Valid_Date__c.year(),
-                                            appForm.application_Valid_Date__c.month(), appForm.application_Valid_Date__c.day(), 0, 0, 0);
+                                            appForm.application_Valid_Date__c.month(), 
+                                            appForm.application_Valid_Date__c.day(), 0, 0, 0);
             String formattedDt = refDate1.format('yyyy-MM-dd');
             query += ' Application_Valid_Date__c >= '+ formattedDt + ' AND'; 
         }
 		if (appForm.Due_Date__c != null) {
 		    System.debug('appForm.Due_Date__c:' +appForm.Due_Date__c);
-            DateTime refDate1 = DateTime.newInstance(appForm.due_Date__c.year(), appForm.due_Date__c.month(), appForm.due_Date__c.day(), 0, 0, 0);
+            DateTime refDate1 = DateTime.newInstance(appForm.due_Date__c.year(), 
+                                                     appForm.due_Date__c.month(),
+                                                     appForm.due_Date__c.day(), 0, 0, 0);
             String formattedDt = refDate1.format('yyyy-MM-dd');            
             query += ' Due_Date__c <= '+ formattedDt + ' AND'; 
         }
